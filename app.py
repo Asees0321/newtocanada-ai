@@ -1,7 +1,7 @@
 import streamlit as st
 
 # ======================
-# CONFIG
+# PAGE CONFIG
 # ======================
 st.set_page_config(
     page_title="NewToCanada AI",
@@ -10,11 +10,12 @@ st.set_page_config(
 )
 
 # ======================
-# UI STYLE (STARTUP LEVEL)
+# PREMIUM UI FIX (READABLE + STARTUP STYLE)
 # ======================
 st.markdown("""
 <style>
 
+/* Background */
 .main {
     background-color: #f6f8fb;
 }
@@ -31,14 +32,26 @@ h2 {
     color: #111827;
 }
 
-/* Cards */
+/* ======================
+   FIXED CARD DESIGN (READABLE)
+====================== */
 .card {
-    background: white;
-    padding: 20px;
+    background: #f9fafb;
+    padding: 22px;
     border-radius: 18px;
     border: 1px solid #e5e7eb;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     margin-bottom: 12px;
+    color: #111827;
+}
+
+.card h3 {
+    color: #0f172a !important;
+    font-weight: 700;
+}
+
+.card p {
+    color: #4b5563 !important;
 }
 
 /* Buttons */
@@ -50,13 +63,25 @@ h2 {
     font-weight: 600;
 }
 
-/* Sidebar */
+/* ======================
+   SIDEBAR FIX (READABLE)
+====================== */
 section[data-testid="stSidebar"] {
     background: #0b1220;
 }
 
 section[data-testid="stSidebar"] * {
     color: #e5e7eb !important;
+}
+
+section[data-testid="stSidebar"] label {
+    color: #e5e7eb !important;
+}
+
+section[data-testid="stSidebar"] label:hover {
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 6px;
 }
 
 /* Progress bar */
@@ -80,7 +105,7 @@ if "step" not in st.session_state:
     st.session_state.step = 0
 
 # ======================
-# ONBOARDING FLOW (DUOLINGO STYLE)
+# ONBOARDING (DUOLINGO STYLE)
 # ======================
 if not st.session_state.onboarded:
 
@@ -101,7 +126,12 @@ if not st.session_state.onboarded:
         st.text_input("What is your name?")
 
     elif st.session_state.step == 1:
-        st.selectbox("Province", ["Ontario", "BC", "Alberta", "Quebec"])
+        st.selectbox("Province", [
+            "Ontario", "British Columbia", "Alberta", "Quebec",
+            "Manitoba", "Saskatchewan", "Nova Scotia",
+            "New Brunswick", "Newfoundland and Labrador",
+            "Prince Edward Island"
+        ])
 
     elif st.session_state.step == 2:
         st.selectbox("Goal", ["Study", "Work", "Family Immigration"])
@@ -129,7 +159,7 @@ if not st.session_state.onboarded:
 # NAVIGATION
 # ======================
 page = st.sidebar.radio(
-    "Navigate",
+    "Navigation",
     ["🏠 Home", "📊 Dashboard", "💬 AI Chat", "🧾 Resume Helper"]
 )
 
@@ -153,13 +183,13 @@ if page == "🏠 Home":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("""<div class="card"><h3>📋 Checklists</h3></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class="card"><h3>📋 Checklists</h3><p>Personal tasks</p></div>""", unsafe_allow_html=True)
 
     with col2:
-        st.markdown("""<div class="card"><h3>💰 Cost Planner</h3></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class="card"><h3>💰 Cost Planner</h3><p>City expenses</p></div>""", unsafe_allow_html=True)
 
     with col3:
-        st.markdown("""<div class="card"><h3>💬 AI Assistant</h3></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class="card"><h3>💬 AI Assistant</h3><p>Ask questions</p></div>""", unsafe_allow_html=True)
 
 # ======================
 # DASHBOARD
@@ -173,7 +203,13 @@ elif page == "📊 Dashboard":
     </div>
     """, unsafe_allow_html=True)
 
-    province = st.selectbox("Province", ["Ontario", "BC", "Alberta", "Quebec"])
+    province = st.selectbox("Province", [
+        "Ontario", "British Columbia", "Alberta", "Quebec",
+        "Manitoba", "Saskatchewan", "Nova Scotia",
+        "New Brunswick", "Newfoundland and Labrador",
+        "Prince Edward Island"
+    ])
+
     user_type = st.selectbox("Type", ["Student", "Worker", "Family"])
 
     base_tasks = [
@@ -221,7 +257,6 @@ elif page == "📊 Dashboard":
 
     st.markdown("---")
 
-    # COST OF LIVING
     city = st.selectbox("City", ["Toronto", "Vancouver", "Calgary", "Montreal", "Ottawa"])
 
     costs = {
@@ -248,7 +283,7 @@ elif page == "📊 Dashboard":
         st.success(f"Total: ${total_cost}")
 
 # ======================
-# AI CHAT (SAFE FALLBACK GPT STYLE)
+# AI CHAT (SIMPLE SMART MODE)
 # ======================
 elif page == "💬 AI Chat":
 
@@ -264,11 +299,11 @@ elif page == "💬 AI Chat":
         if "sin" in q.lower():
             ans = "Apply at Service Canada with passport and permit."
         elif "bank" in q.lower():
-            ans = "RBC, TD, Scotiabank offer newcomer accounts."
+            ans = "Top banks: RBC, TD, Scotiabank, CIBC."
         elif "rent" in q.lower():
-            ans = "You need income proof + references + credit history."
+            ans = "Need income proof + references + credit history."
         else:
-            ans = "I can help with jobs, housing, banking, and immigration."
+            ans = "I can help with jobs, housing, banking, immigration."
 
         st.info("🤖 " + ans)
 
@@ -289,8 +324,8 @@ elif page == "🧾 Resume Helper":
         if resume:
             st.success("Suggestions:")
             st.write("✔ Use action verbs")
-            st.write("✔ Add numbers (impact)")
-            st.write("✔ Keep 1–2 pages")
+            st.write("✔ Add measurable impact")
+            st.write("✔ Keep it concise (1–2 pages)")
             st.write("✔ Tailor for each job")
         else:
             st.warning("Paste resume first")
