@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # ======================
-# SESSION STATE
+# SESSION STATE SAFE INIT
 # ======================
 if "tasks" not in st.session_state:
     st.session_state.tasks = {}
@@ -21,8 +21,11 @@ if "chat_history" not in st.session_state:
 if "onboarded" not in st.session_state:
     st.session_state.onboarded = False
 
+if "step" not in st.session_state:
+    st.session_state.step = 0
+
 # ======================
-# CSS (FIXED READABILITY)
+# PREMIUM UI FIX (READABLE)
 # ======================
 st.markdown("""
 <style>
@@ -63,7 +66,10 @@ section[data-testid="stSidebar"] * {
     color: #e5e7eb !important;
 }
 
-/* CHAT FIX */
+/* ======================
+   CHAT FIX (CRITICAL)
+====================== */
+
 .user {
     text-align: right;
     background: #dbeafe;
@@ -76,12 +82,21 @@ section[data-testid="stSidebar"] * {
 
 .bot {
     text-align: left;
-    background: #111827;
+    background: #111827;   /* FIXED DARK BACKGROUND */
     color: #ffffff !important;
     padding: 12px;
     border-radius: 12px;
     margin: 6px;
     font-weight: 500;
+}
+
+/* FORCE TEXT READABILITY */
+.bot * {
+    color: white !important;
+}
+
+.user * {
+    color: #0f172a !important;
 }
 
 </style>
@@ -113,7 +128,7 @@ if not st.session_state.onboarded:
     st.stop()
 
 # ======================
-# NAVIGATION (IMPORTANT STRUCTURE)
+# NAVIGATION
 # ======================
 page = st.sidebar.radio(
     "Navigation",
@@ -195,13 +210,15 @@ elif page == "📊 Dashboard":
         st.success("Canada-ready!")
 
 # ======================
-# 💬 AI ASSISTANT (FIXED + SEARCH BUTTON)
+# AI ASSISTANT (FIXED VISUAL + SAFE LOGIC)
 # ======================
 elif page == "💬 AI Assistant":
 
     st.markdown("## 💬 Canada AI Assistant")
 
     lang = st.selectbox("Language", ["English","Punjabi","Hindi","French"])
+
+    q = st.text_input("Ask anything")
 
     suggestions = [
         "How do I get SIN?",
@@ -213,43 +230,42 @@ elif page == "💬 AI Assistant":
     st.write("💡 Try:")
     st.write(", ".join(suggestions))
 
+    # INIT CHAT HISTORY SAFELY
     if page not in st.session_state.chat_history:
         st.session_state.chat_history[page] = []
 
-    col1, col2 = st.columns([5,1])
-
-    with col1:
-        q = st.text_input("Ask anything", key="ai_input")
-
-    with col2:
-        search = st.button("🔍 Search")
-
-    if search and q:
+    if q:
 
         st.session_state.chat_history[page].append({"role":"user","content":q})
 
+        # SIMPLE SAFE RESPONSE (stable for hackathon)
         if "sin" in q.lower():
             answer = "Apply for SIN at Service Canada with passport + permit."
         elif "bank" in q.lower():
-            answer = "Use RBC, TD, Scotiabank, or CIBC to open an account."
+            answer = "You can open an account at RBC, TD, Scotiabank, or CIBC."
         elif "rent" in q.lower():
-            answer = "You need income proof, references, and credit history."
-        elif "job" in q.lower():
-            answer = "Use Indeed, LinkedIn, and local job boards."
+            answer = "You need income proof, references, and sometimes credit history."
         else:
             answer = "I can help with jobs, housing, banking, and immigration in Canada."
 
         st.session_state.chat_history[page].append({"role":"assistant","content":answer})
 
+    # DISPLAY CHAT
     for msg in st.session_state.chat_history[page][-6:]:
 
         if msg["role"] == "user":
-            st.markdown(f"<div class='user'>🧑 {msg['content']}</div>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='user'>🧑 {msg['content']}</div>",
+                unsafe_allow_html=True
+            )
         else:
-            st.markdown(f"<div class='bot'>🤖 {msg['content']}</div>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='bot'>🤖 {msg['content']}</div>",
+                unsafe_allow_html=True
+            )
 
 # ======================
-# 🧾 RESUME HELPER
+# RESUME HELPER
 # ======================
 elif page == "🧾 Resume Helper":
 
@@ -261,9 +277,9 @@ elif page == "🧾 Resume Helper":
 
         if resume:
             st.success("Improvements:")
-            st.write("✔ Add measurable impact")
+            st.write("✔ Add measurable results")
             st.write("✔ Use action verbs")
-            st.write("✔ Tailor for job applications")
-            st.write("✔ Keep it concise (1–2 pages)")
+            st.write("✔ Tailor for job description")
+            st.write("✔ Keep it 1–2 pages")
         else:
-            st.warning("Please paste your resume first")
+            st.warning("Please paste resume first")
