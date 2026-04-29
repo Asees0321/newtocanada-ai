@@ -1,7 +1,7 @@
 import streamlit as st
 
 # ======================
-# PAGE CONFIG
+# CONFIG
 # ======================
 st.set_page_config(
     page_title="NewToCanada AI",
@@ -10,69 +10,120 @@ st.set_page_config(
 )
 
 # ======================
-# UI STYLING (STARTUP LOOK)
+# UI STYLE (STARTUP LEVEL)
 # ======================
 st.markdown("""
 <style>
 
 .main {
-    background-color: #f8fafc;
+    background-color: #f6f8fb;
 }
 
-/* Titles */
+/* Typography */
 h1 {
-    font-size: 42px !important;
+    font-size: 44px !important;
     font-weight: 800;
     color: #0f172a;
 }
 
 h2 {
     font-weight: 700;
-    color: #1e293b;
+    color: #111827;
 }
 
 /* Cards */
 .card {
     background: white;
     padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-    border: 1px solid #eef2f7;
-    margin-bottom: 15px;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    margin-bottom: 12px;
 }
 
 /* Buttons */
 .stButton > button {
-    background: linear-gradient(90deg, #e63946, #d62828);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
     color: white;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 10px 18px;
-    border: none;
     font-weight: 600;
-}
-
-.stButton > button:hover {
-    transform: scale(1.02);
-    transition: 0.2s;
 }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
-    background-color: #0f172a;
+    background: #0b1220;
 }
 
 section[data-testid="stSidebar"] * {
-    color: white;
+    color: #e5e7eb !important;
+}
+
+/* Progress bar */
+.stProgress > div > div {
+    background-color: #ef4444;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # ======================
-# SESSION STATE (SAFE)
+# SESSION STATE
 # ======================
 if "tasks" not in st.session_state:
     st.session_state.tasks = {}
+
+if "onboarded" not in st.session_state:
+    st.session_state.onboarded = False
+
+if "step" not in st.session_state:
+    st.session_state.step = 0
+
+# ======================
+# ONBOARDING FLOW (DUOLINGO STYLE)
+# ======================
+if not st.session_state.onboarded:
+
+    st.markdown("## 🇨🇦 Welcome to NewToCanada AI")
+
+    steps = [
+        "Tell us about you",
+        "Choose your province",
+        "Set your goal",
+        "You're ready!"
+    ]
+
+    st.progress(st.session_state.step / (len(steps)-1))
+
+    st.markdown(f"### {steps[st.session_state.step]}")
+
+    if st.session_state.step == 0:
+        st.text_input("What is your name?")
+
+    elif st.session_state.step == 1:
+        st.selectbox("Province", ["Ontario", "BC", "Alberta", "Quebec"])
+
+    elif st.session_state.step == 2:
+        st.selectbox("Goal", ["Study", "Work", "Family Immigration"])
+
+    elif st.session_state.step == 3:
+        st.success("You're all set! 🎉")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("⬅ Back") and st.session_state.step > 0:
+            st.session_state.step -= 1
+
+    with col2:
+        if st.button("Next ➡"):
+            if st.session_state.step < 3:
+                st.session_state.step += 1
+            else:
+                st.session_state.onboarded = True
+                st.rerun()
+
+    st.stop()
 
 # ======================
 # NAVIGATION
@@ -83,7 +134,7 @@ page = st.sidebar.radio(
 )
 
 # ======================
-# HOME PAGE
+# HOME
 # ======================
 if page == "🏠 Home":
 
@@ -91,10 +142,10 @@ if page == "🏠 Home":
     <div style="text-align:center; padding:40px;">
         <h1>🇨🇦 NewToCanada AI</h1>
         <p style="font-size:18px; color:#475569;">
-        Your AI-powered settlement assistant for Canada
+        AI-powered settlement assistant for Canada
         </p>
         <p style="color:#64748b;">
-        Jobs • Housing • Budgeting • Documents • Daily Life
+        Jobs • Housing • Budgeting • Documents • Life Setup
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -102,30 +153,13 @@ if page == "🏠 Home":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("""
-        <div class="card">
-        <h3>📋 Smart Checklists</h3>
-        <p>Personalized settlement tasks</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class="card"><h3>📋 Checklists</h3></div>""", unsafe_allow_html=True)
 
     with col2:
-        st.markdown("""
-        <div class="card">
-        <h3>💰 Cost Planner</h3>
-        <p>Living costs in Canadian cities</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class="card"><h3>💰 Cost Planner</h3></div>""", unsafe_allow_html=True)
 
     with col3:
-        st.markdown("""
-        <div class="card">
-        <h3>💬 AI Assistant</h3>
-        <p>Ask anything about Canada</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.button("🚀 Get Started")
+        st.markdown("""<div class="card"><h3>💬 AI Assistant</h3></div>""", unsafe_allow_html=True)
 
 # ======================
 # DASHBOARD
@@ -135,12 +169,12 @@ elif page == "📊 Dashboard":
     st.markdown("""
     <div class="card">
     <h2>📊 Settlement Dashboard</h2>
-    <p>Track your progress toward becoming Canada-ready</p>
+    <p>Track your Canada readiness progress</p>
     </div>
     """, unsafe_allow_html=True)
 
     province = st.selectbox("Province", ["Ontario", "BC", "Alberta", "Quebec"])
-    user_type = st.selectbox("You are a:", ["Student", "Worker", "Family"])
+    user_type = st.selectbox("Type", ["Student", "Worker", "Family"])
 
     base_tasks = [
         "Apply for SIN",
@@ -153,9 +187,6 @@ elif page == "📊 Dashboard":
 
     key = f"{province}-{user_type}"
 
-    # ======================
-    # FIXED SESSION STATE (NO CRASH)
-    # ======================
     if key not in st.session_state.tasks:
         st.session_state.tasks[key] = {}
 
@@ -178,24 +209,19 @@ elif page == "📊 Dashboard":
     total = len(base_tasks)
     score = int((done / total) * 100)
 
-    st.markdown("### 🇨🇦 Canada Readiness Score")
+    st.markdown("### 🇨🇦 Canada Survival Score 2.0")
     st.progress(score / 100)
 
     if score < 40:
-        st.error(f"{score}/100 — Just getting started")
+        st.error("You may struggle initially")
     elif score < 70:
-        st.warning(f"{score}/100 — Getting there")
+        st.warning("You are getting stable")
     else:
-        st.success(f"{score}/100 — Canada ready!")
+        st.success("You are Canada-ready!")
 
     st.markdown("---")
 
-    st.markdown("""
-    <div class="card">
-    <h3>💰 Cost of Living (Monthly)</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
+    # COST OF LIVING
     city = st.selectbox("City", ["Toronto", "Vancouver", "Calgary", "Montreal", "Ottawa"])
 
     costs = {
@@ -209,14 +235,20 @@ elif page == "📊 Dashboard":
     rent, food, transport, phone = costs[city]
     total_cost = rent + food + transport + phone
 
-    st.metric("Rent", f"${rent}")
-    st.metric("Food", f"${food}")
-    st.metric("Transport", f"${transport}")
-    st.metric("Phone", f"${phone}")
-    st.success(f"Total: ${total_cost}")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("City", city)
+        st.metric("Rent", f"${rent}")
+        st.metric("Food", f"${food}")
+
+    with col2:
+        st.metric("Transport", f"${transport}")
+        st.metric("Phone", f"${phone}")
+        st.success(f"Total: ${total_cost}")
 
 # ======================
-# AI CHAT
+# AI CHAT (SAFE FALLBACK GPT STYLE)
 # ======================
 elif page == "💬 AI Chat":
 
@@ -226,22 +258,19 @@ elif page == "💬 AI Chat":
     </div>
     """, unsafe_allow_html=True)
 
-    user_input = st.text_input("Ask anything about Canada")
+    q = st.text_input("Ask anything")
 
-    if user_input:
-
-        if "sin" in user_input.lower():
-            response = "Apply for SIN at Service Canada with your passport and permit."
-        elif "bank" in user_input.lower():
-            response = "Best banks: RBC, TD, Scotiabank, CIBC (newcomer accounts)."
-        elif "rent" in user_input.lower():
-            response = "You need income proof, references, and sometimes credit history."
-        elif "job" in user_input.lower():
-            response = "Use Indeed, LinkedIn, and Canadian job boards."
+    if q:
+        if "sin" in q.lower():
+            ans = "Apply at Service Canada with passport and permit."
+        elif "bank" in q.lower():
+            ans = "RBC, TD, Scotiabank offer newcomer accounts."
+        elif "rent" in q.lower():
+            ans = "You need income proof + references + credit history."
         else:
-            response = "I can help with jobs, housing, banking, taxes, and settling in Canada."
+            ans = "I can help with jobs, housing, banking, and immigration."
 
-        st.info("🤖 " + response)
+        st.info("🤖 " + ans)
 
 # ======================
 # RESUME HELPER
@@ -254,15 +283,14 @@ elif page == "🧾 Resume Helper":
     </div>
     """, unsafe_allow_html=True)
 
-    resume = st.text_area("Paste your resume")
+    resume = st.text_area("Paste resume")
 
     if st.button("Improve Resume"):
-
         if resume:
             st.success("Suggestions:")
-            st.write("✔ Use action verbs (Led, Built, Managed)")
-            st.write("✔ Add numbers (e.g. improved efficiency by 30%)")
-            st.write("✔ Keep it 1–2 pages for Canada format")
-            st.write("✔ Tailor for each job application")
+            st.write("✔ Use action verbs")
+            st.write("✔ Add numbers (impact)")
+            st.write("✔ Keep 1–2 pages")
+            st.write("✔ Tailor for each job")
         else:
-            st.warning("Please paste resume first")
+            st.warning("Paste resume first")
