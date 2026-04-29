@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # ======================
-# CUSTOM UI STYLE
+# UI STYLING (STARTUP LOOK)
 # ======================
 st.markdown("""
 <style>
@@ -69,7 +69,7 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # ======================
-# SESSION STATE
+# SESSION STATE (SAFE)
 # ======================
 if "tasks" not in st.session_state:
     st.session_state.tasks = {}
@@ -83,7 +83,7 @@ page = st.sidebar.radio(
 )
 
 # ======================
-# HOME PAGE (STARTUP LANDING)
+# HOME PAGE
 # ======================
 if page == "🏠 Home":
 
@@ -105,7 +105,7 @@ if page == "🏠 Home":
         st.markdown("""
         <div class="card">
         <h3>📋 Smart Checklists</h3>
-        <p>Personalized tasks based on your profile</p>
+        <p>Personalized settlement tasks</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -113,7 +113,7 @@ if page == "🏠 Home":
         st.markdown("""
         <div class="card">
         <h3>💰 Cost Planner</h3>
-        <p>Know living costs in Canadian cities</p>
+        <p>Living costs in Canadian cities</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -125,7 +125,6 @@ if page == "🏠 Home":
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
     st.button("🚀 Get Started")
 
 # ======================
@@ -136,7 +135,7 @@ elif page == "📊 Dashboard":
     st.markdown("""
     <div class="card">
     <h2>📊 Settlement Dashboard</h2>
-    <p>Track your progress to becoming Canada-ready</p>
+    <p>Track your progress toward becoming Canada-ready</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -154,8 +153,15 @@ elif page == "📊 Dashboard":
 
     key = f"{province}-{user_type}"
 
+    # ======================
+    # FIXED SESSION STATE (NO CRASH)
+    # ======================
     if key not in st.session_state.tasks:
-        st.session_state.tasks[key] = {t: False for t in base_tasks}
+        st.session_state.tasks[key] = {}
+
+    for t in base_tasks:
+        if t not in st.session_state.tasks[key]:
+            st.session_state.tasks[key][t] = False
 
     st.markdown("### 🧾 Checklist")
 
@@ -164,7 +170,7 @@ elif page == "📊 Dashboard":
     for task in base_tasks:
         st.session_state.tasks[key][task] = st.checkbox(
             task,
-            value=st.session_state.tasks[key][task]
+            value=st.session_state.tasks[key].get(task, False)
         )
         if st.session_state.tasks[key][task]:
             done += 1
@@ -227,13 +233,13 @@ elif page == "💬 AI Chat":
         if "sin" in user_input.lower():
             response = "Apply for SIN at Service Canada with your passport and permit."
         elif "bank" in user_input.lower():
-            response = "Best banks: RBC, TD, Scotiabank, CIBC (newcomer accounts available)."
+            response = "Best banks: RBC, TD, Scotiabank, CIBC (newcomer accounts)."
         elif "rent" in user_input.lower():
             response = "You need income proof, references, and sometimes credit history."
         elif "job" in user_input.lower():
-            response = "Start with Indeed, LinkedIn, and Canadian job boards."
+            response = "Use Indeed, LinkedIn, and Canadian job boards."
         else:
-            response = "I can help with housing, jobs, banking, taxes, and settling in Canada."
+            response = "I can help with jobs, housing, banking, taxes, and settling in Canada."
 
         st.info("🤖 " + response)
 
@@ -255,7 +261,7 @@ elif page == "🧾 Resume Helper":
         if resume:
             st.success("Suggestions:")
             st.write("✔ Use action verbs (Led, Built, Managed)")
-            st.write("✔ Add numbers (improved efficiency by 30%)")
+            st.write("✔ Add numbers (e.g. improved efficiency by 30%)")
             st.write("✔ Keep it 1–2 pages for Canada format")
             st.write("✔ Tailor for each job application")
         else:
