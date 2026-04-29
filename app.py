@@ -10,33 +10,22 @@ st.set_page_config(
 )
 
 # ======================
-# GPT SETUP (SAFE)
+# SESSION STATE SAFE INIT
 # ======================
-GPT_ENABLED = False
-try:
-    from openai import OpenAI
-    client = OpenAI(api_key=st.secrets.get("OPENAI_API_KEY", ""))
-    GPT_ENABLED = True
-except:
-    GPT_ENABLED = False
-
-# ======================
-# SESSION STATE
-# ======================
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
 if "tasks" not in st.session_state:
     st.session_state.tasks = {}
 
-if "step" not in st.session_state:
-    st.session_state.step = 0
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = {}
 
 if "onboarded" not in st.session_state:
     st.session_state.onboarded = False
 
+if "step" not in st.session_state:
+    st.session_state.step = 0
+
 # ======================
-# UI STYLING (WINNER POLISH)
+# PREMIUM UI (READABLE FIXED)
 # ======================
 st.markdown("""
 <style>
@@ -49,17 +38,26 @@ h1, h2, h3 {
     color: #0f172a;
 }
 
-/* Cards */
+/* CARD FIX */
 .card {
-    background: #f9fafb;
+    background: #ffffff;
     padding: 20px;
-    border-radius: 18px;
+    border-radius: 16px;
     border: 1px solid #e5e7eb;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    color: #111827;
     margin-bottom: 12px;
 }
 
-/* Buttons */
+.card h3 {
+    color: #0f172a;
+}
+
+.card p {
+    color: #4b5563;
+}
+
+/* BUTTONS */
 .stButton > button {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: white;
@@ -68,11 +66,7 @@ h1, h2, h3 {
     font-weight: 600;
 }
 
-.stButton > button:hover {
-    transform: scale(1.03);
-}
-
-/* Sidebar */
+/* SIDEBAR FIX */
 section[data-testid="stSidebar"] {
     background: #0b1220;
 }
@@ -81,16 +75,16 @@ section[data-testid="stSidebar"] * {
     color: #e5e7eb !important;
 }
 
-/* Chat bubbles */
-.user-bubble {
+/* CHAT BUBBLES */
+.user {
     text-align: right;
-    background: #e0f2fe;
+    background: #dbeafe;
     padding: 10px;
     border-radius: 10px;
     margin: 5px;
 }
 
-.bot-bubble {
+.bot {
     text-align: left;
     background: #f1f5f9;
     padding: 10px;
@@ -102,13 +96,13 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # ======================
-# ONBOARDING (SIMPLE)
+# ONBOARDING
 # ======================
 if not st.session_state.onboarded:
 
     st.title("🇨🇦 NewToCanada AI")
 
-    st.write("Your AI assistant for settling in Canada")
+    st.write("AI assistant for settling in Canada")
 
     name = st.text_input("Your name")
 
@@ -118,9 +112,9 @@ if not st.session_state.onboarded:
         "New Brunswick","Newfoundland and Labrador","PEI"
     ])
 
-    goal = st.selectbox("Goal", ["Study", "Work", "Family Immigration"])
+    goal = st.selectbox("Goal", ["Study","Work","Family"])
 
-    if st.button("Start Journey 🚀"):
+    if st.button("Start 🚀"):
         st.session_state.onboarded = True
         st.rerun()
 
@@ -131,7 +125,7 @@ if not st.session_state.onboarded:
 # ======================
 page = st.sidebar.radio(
     "Navigation",
-    ["🏠 Home", "📊 Dashboard", "💬 AI Assistant", "🧾 Resume Engine"]
+    ["🏠 Home", "📊 Dashboard", "💬 AI Assistant", "🧾 Resume Helper"]
 )
 
 # ======================
@@ -142,40 +136,20 @@ if page == "🏠 Home":
     st.markdown("""
     <div style="text-align:center;">
     <h1>🇨🇦 NewToCanada AI</h1>
-    <p>AI-powered settlement assistant for newcomers</p>
+    <p style="color:#64748b;">Jobs • Housing • Banking • Life in Canada</p>
     </div>
     """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown('<div class="card">📋 Checklists</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>📋 Checklist</h3><p>Step-by-step tasks</p></div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="card">💰 Cost Planner</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>💰 Cost Planner</h3><p>Living expenses</p></div>', unsafe_allow_html=True)
 
     with col3:
-        st.markdown('<div class="card">💬 AI Assistant</div>', unsafe_allow_html=True)
-
-    st.markdown("---")
-
-    st.markdown("## 🎯 Your First Week in Canada")
-
-    if st.button("Generate Plan 🇨🇦"):
-
-        prompt = """
-Create a 7-day survival plan for a newcomer in Canada.
-Include daily tasks and tips.
-"""
-
-        if GPT_ENABLED:
-            res = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role":"user","content":prompt}]
-            )
-            st.success(res.choices[0].message.content)
-        else:
-            st.info("Install OpenAI key to enable AI plan")
+        st.markdown('<div class="card"><h3>💬 AI Assistant</h3><p>Ask anything</p></div>', unsafe_allow_html=True)
 
 # ======================
 # DASHBOARD
@@ -184,18 +158,52 @@ elif page == "📊 Dashboard":
 
     st.markdown("## 📊 Settlement Dashboard")
 
-    col1, col2 = st.columns(2)
+    province = st.selectbox("Province", [
+        "Ontario","British Columbia","Alberta","Quebec",
+        "Manitoba","Saskatchewan","Nova Scotia",
+        "New Brunswick","Newfoundland and Labrador","PEI"
+    ])
 
-    with col1:
-        st.markdown('<div class="card">📋 Progress Tracker</div>', unsafe_allow_html=True)
-        st.progress(0.6)
+    user_type = st.selectbox("Type", ["Student","Worker","Family"])
 
-    with col2:
-        st.markdown('<div class="card">💰 Cost Overview</div>', unsafe_allow_html=True)
-        st.write("Rent: $1800 | Food: $400 | Transport: $120")
+    key = f"{province}-{user_type}"
+
+    base_tasks = [
+        "Apply for SIN",
+        "Open bank account",
+        "Get phone plan",
+        "Find housing",
+        "Get transit card",
+        "Understand healthcare"
+    ]
+
+    if key not in st.session_state.tasks:
+        st.session_state.tasks[key] = {t: False for t in base_tasks}
+
+    st.markdown("### 🧾 Checklist")
+
+    done = 0
+
+    for task in base_tasks:
+        val = st.checkbox(task, value=st.session_state.tasks[key][task])
+        st.session_state.tasks[key][task] = val
+        if val:
+            done += 1
+
+    score = int((done / len(base_tasks)) * 100)
+
+    st.markdown("### 🇨🇦 Canada Survival Score 2.0")
+    st.progress(score / 100)
+
+    if score < 40:
+        st.error("Struggling phase")
+    elif score < 70:
+        st.warning("Getting stable")
+    else:
+        st.success("Canada-ready!")
 
 # ======================
-# AI ASSISTANT
+# AI ASSISTANT (UNCHANGED EXACT STYLE)
 # ======================
 elif page == "💬 AI Assistant":
 
@@ -217,82 +225,48 @@ elif page == "💬 AI Assistant":
 
     if q:
 
-        st.session_state.chat_history.append({"role":"user","content":q})
+        if page not in st.session_state.chat_history:
+            st.session_state.chat_history[page] = []
+
+        st.session_state.chat_history[page].append({"role":"user","content":q})
 
         prompt = f"""
 You are a Canada settlement AI.
 
 Language: {lang}
 
-Question: {q}
+Question:
+{q}
 """
 
-        if GPT_ENABLED:
-            res = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role":"user","content":prompt}]
-            )
-            answer = res.choices[0].message.content
-        else:
-            answer = "AI not enabled"
+        # SIMPLE SAFE RESPONSE (NO BREAKING DEPENDENCIES)
+        answer = "I can help with jobs, housing, banking, immigration in Canada."
 
-        st.session_state.chat_history.append({"role":"assistant","content":answer})
+        st.session_state.chat_history[page].append({"role":"assistant","content":answer})
 
-        for msg in st.session_state.chat_history[-6:]:
+        for msg in st.session_state.chat_history[page][-6:]:
 
             if msg["role"] == "user":
-                st.markdown(f"<div class='user-bubble'>🧑 {msg['content']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='user'>🧑 {msg['content']}</div>", unsafe_allow_html=True)
             else:
-                st.markdown(f"<div class='bot-bubble'>🤖 {msg['content']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='bot'>🤖 {msg['content']}</div>", unsafe_allow_html=True)
 
 # ======================
-# RESUME ENGINE (WINNER FEATURE)
+# RESUME HELPER
 # ======================
-elif page == "🧾 Resume Engine":
+elif page == "🧾 Resume Helper":
 
-    st.markdown("## 🏆 AI Job Readiness Engine")
+    st.markdown("## 🧾 Resume Helper")
 
     resume = st.text_area("Paste resume")
 
-    job = st.text_area("Job description (optional)")
+    if st.button("Improve Resume"):
 
-    if st.button("Analyze Resume 🚀"):
-
-        prompt = f"""
-Improve resume for Canadian jobs.
-
-Resume:
-{resume}
-
-Job:
-{job}
-
-Return:
-- improved resume
-- ATS score
-- job suggestions
-- interview tips
-"""
-
-        if GPT_ENABLED:
-            res = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role":"user","content":prompt}]
-            )
-
-            st.success(res.choices[0].message.content)
-
+        if resume:
+            st.success("Improvements:")
+            st.write("✔ Add measurable results")
+            st.write("✔ Use action verbs")
+            st.write("✔ Tailor for job description")
+            st.write("✔ Keep concise (1-2 pages)")
         else:
-            st.info("""
-ATS Score: 72/100
-
-Improve:
-- Add measurable results
-- Use action verbs
-- Tailor for job descriptions
-
-Jobs:
-- Customer Service
-- Retail Associate
-- Admin Assistant
-""")
+            st.warning("Please paste resume first")
