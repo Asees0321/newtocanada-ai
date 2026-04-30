@@ -187,114 +187,9 @@ st.markdown(
         font-size: 0.85rem;
     }
 
-    section[data-testid="stSidebar"] {
-        background: #ffffff;
-        border-right: 1px solid var(--line);
-        width: 250px !important;
-    }
-
-    section[data-testid="stSidebar"] > div {
-        padding: 18px 12px;
-    }
-
-    section[data-testid="stSidebar"] label {
-        color: #64748b !important;
-        font-weight: 800;
-        text-transform: uppercase;
-        font-size: 0.72rem;
-    }
-
-    section[data-testid="stSidebar"] [role="radiogroup"] {
-        gap: 6px;
-    }
-
-    section[data-testid="stSidebar"] [role="radiogroup"] label {
-        min-height: 46px;
-        padding: 0 12px;
-        border-radius: 10px;
-        color: #111827 !important;
-        text-transform: none;
-        font-size: 0.96rem;
-        font-weight: 700;
-    }
-
-    section[data-testid="stSidebar"] [role="radiogroup"] label:hover {
-        background: #f1f5f9;
-    }
-
-    section[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {
-        background: #fee2e2;
-        color: #991b1b !important;
-    }
-
-    .section-title {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-
-    .section-title h1,
-    .section-title h2 {
-        margin: 0;
-        line-height: 1.1;
-    }
-
-    .section-title p {
-        margin: 6px 0 0;
-        color: var(--muted);
-    }
-
-    .grid-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 18px;
-        min-height: 148px;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
-        transition: transform 140ms ease, box-shadow 140ms ease;
-    }
-
-    .grid-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-    }
-
-    .grid-card .icon {
-        width: 42px;
-        height: 42px;
-        display: grid;
-        place-items: center;
-        border-radius: 50%;
-        background: #f1f5f9;
-        margin-bottom: 18px;
-        font-size: 1.28rem;
-    }
-
-    .grid-card h3 {
-        margin: 0 0 6px;
-        font-size: 1.02rem;
-    }
-
-    .grid-card p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.92rem;
-    }
-    
-    .metric-row {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        margin-bottom: 18px;
-    }
-
-    .metric {
-        background: #ffffff;
-        border: 1px solid var(--line);
-        border-radius: 8px;
+           border-radius: 8px;
         padding: 16px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
     }
 
     .metric strong {
@@ -305,7 +200,7 @@ st.markdown(
     }
 
     .metric span {
-        color: var(--muted);
+        color: #475569;
         font-size: 0.88rem;
     }
 
@@ -320,14 +215,14 @@ st.markdown(
 
     .user {
         margin-left: auto;
-        background: #dcfce7;
+        background: #bbf7d0;
         border-bottom-right-radius: 4px;
     }
 
     .bot {
         margin-right: auto;
-        background: #ffffff;
-        border: 1px solid var(--line);
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
         border-bottom-left-radius: 4px;
     }
 
@@ -352,6 +247,25 @@ st.markdown(
     div[data-baseweb="select"] > div,
     textarea {
         border-radius: 10px !important;
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    div[data-baseweb="select"] span,
+    textarea::placeholder,
+    input::placeholder {
+        color: #64748b !important;
+    }
+
+    .stMarkdown,
+    .stCaption,
+    .stCheckbox {
+        color: #f8fafc;
+    }
+
+    div[data-testid="stAlert"] {
+        color: #0f172a;
     }
 
     @media (max-width: 760px) {
