@@ -379,37 +379,14 @@ st.markdown(
 )
 
 
-def render_topbar(title_hint="Search settlement help"):
-    name = st.session_state.user_name.strip() or "Guest"
-    initials = "".join(part[0] for part in name.split()[:2]).upper() or "G"
-    st.markdown(
-        f"""
-        <div class="topbar">
-            <div class="brand">
-                <div class="brand-badge">▶</div>
-                <span>NewToCanada AI</span>
-            </div>
-            <div class="search-shell">
-                <span>{title_hint}</span>
-                <div class="search-icon">⌕</div>
-            </div>
-            <div class="profile-pill">
-                <div class="avatar">{initials}</div>
-                <span>{name}</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+
 
 
 # ======================
 # ONBOARDING
 # ======================
 if not st.session_state.onboarded:
-    render_topbar("Start with your province, goal, and first settlement steps")
-
-    left, right = st.columns([1.05, 0.95], vertical_alignment="center")
+    
 
     with left:
         st.markdown(
@@ -456,7 +433,7 @@ page = st.sidebar.radio(
     ["🏠 Home", "📊 Dashboard", "💬 AI Assistant", "🧾 Resume Helper"],
 )
 
-render_topbar()
+
 
 
 # ======================
