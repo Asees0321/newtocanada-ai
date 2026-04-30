@@ -58,20 +58,21 @@ st.markdown(
     """
 <style>
     :root {
-        --surface: #ffffff;
-        --soft: #f8fafc;
-        --line: #e5e7eb;
-        --text: #111827;
-        --muted: #64748b;
-        --accent: #dc2626;
-        --accent-dark: #b91c1c;
-        --blue: #2563eb;
-    }
+    --surface: #1e1e2e;
+    --soft: #181825;
+    --line: #313244;
+    --text: #cdd6f4;
+    --muted: #a6adc8;
+    --accent: #f38ba8;
+    --accent-dark: #d6668a;
+    --blue: #89b4fa;
+}
 
-    .stApp {
-        background: #f8fafc;
-        color: var(--text);
-    }
+.stApp {
+    background: #11111b;
+    color: var(--text);
+}
+
 
     header[data-testid="stHeader"] {
         background: transparent;
