@@ -1,6 +1,5 @@
 import streamlit as st
 
-
 # ======================
 # PAGE CONFIG
 # ======================
@@ -11,9 +10,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-
 # ======================
-# SESSION STATE SAFE INIT
+# SESSION STATE
 # ======================
 if "tasks" not in st.session_state:
     st.session_state.tasks = {}
@@ -24,9 +22,6 @@ if "chat_history" not in st.session_state:
 if "onboarded" not in st.session_state:
     st.session_state.onboarded = False
 
-if "step" not in st.session_state:
-    st.session_state.step = 0
-
 if "user_name" not in st.session_state:
     st.session_state.user_name = ""
 
@@ -35,7 +30,6 @@ if "user_province" not in st.session_state:
 
 if "user_goal" not in st.session_state:
     st.session_state.user_goal = "Study"
-
 
 PROVINCES = [
     "Ontario",
@@ -47,367 +41,309 @@ PROVINCES = [
     "Nova Scotia",
     "New Brunswick",
     "Newfoundland and Labrador",
-    "PEI",
+    "Prince Edward Island",
 ]
 
-
 # ======================
-# YOUTUBE-STYLE UI
+# PREMIUM UI
 # ======================
-st.markdown(
-    """
+st.markdown("""
 <style>
-    :root {
-    --surface: #1e1e2e;
-    --soft: #181825;
-    --line: #313244;
-    --text: #cdd6f4;
-    --muted: #a6adc8;
-    --accent: #f38ba8;
-    --accent-dark: #d6668a;
-    --blue: #89b4fa;
-}
 
 .stApp {
-    background: #11111b;
-    color: var(--text);
+    background-color: #0f172a;
+    color: white;
 }
 
+/* HIDE STREAMLIT */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
 
-    header[data-testid="stHeader"] {
-        background: transparent;
-        height: 0;
-    }
+/* SIDEBAR */
+section[data-testid="stSidebar"] {
+    background: #111827;
+}
 
-    #MainMenu, footer {
-        visibility: hidden;
-    }
+section[data-testid="stSidebar"] * {
+    color: white !important;
+}
 
-    section.main > div {
-        padding-top: 1.2rem;
-        max-width: 1220px;
-    }
+/* TITLES */
+h1, h2, h3 {
+    color: white !important;
+}
 
-    h1, h2, h3, p, label, span {
-        letter-spacing: 0;
-    }
+/* TEXT */
+p, label, span {
+    color: #d1d5db !important;
+}
 
-    h1, h2, h3 {
-        color: var(--text);
-    }
+/* INPUTS */
+div[data-baseweb="input"] input,
+textarea,
+div[data-baseweb="select"] > div {
+    background-color: #1e293b !important;
+    color: white !important;
+    border: 1px solid #334155 !important;
+    border-radius: 12px !important;
+}
 
-    .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        display: grid;
-        grid-template-columns: auto minmax(220px, 540px) auto;
-        align-items: center;
-        gap: 16px;
-        padding: 10px 4px 18px;
-        background: #f8fafc;
-        border-bottom: 1px solid rgba(229, 231, 235, 0.72);
-        margin-bottom: 20px;
-    }
+/* BUTTONS */
+.stButton > button {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    padding: 12px 18px;
+    font-weight: 700;
+    width: 100%;
+}
 
-    .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 210px;
-        font-weight: 800;
-        color: #0f172a;
-        font-size: 1.08rem;
-        white-space: nowrap;
-    }
+/* CARDS */
+.grid-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 18px;
+    padding: 24px;
+    min-height: 200px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
 
-    .brand-badge {
-        width: 38px;
-        height: 38px;
-        display: grid;
-        place-items: center;
-        border-radius: 50%;
-        background: #ef4444;
-        color: #ffffff;
-        font-size: 1.1rem;
-        box-shadow: 0 8px 18px rgba(220, 38, 38, 0.24);
-    }
+.grid-card h3 {
+    color: white;
+}
 
-    .search-shell {
-        height: 42px;
-        border: 1px solid var(--line);
-        background: #ffffff;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
+.grid-card p {
+    color: #cbd5e1;
+}
 
-    .search-shell span {
-        color: #94a3b8;
-        padding-left: 18px;
-        font-size: 0.94rem;
-    }
-        
-    .search-icon {
-        margin-left: auto;
-        width: 54px;
-        align-self: stretch;
-        display: grid;
-        place-items: center;
-        border-left: 1px solid var(--line);
-        background: #f8fafc;
-        color: #334155;
-    }
+/* ICONS */
+.icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: #dc2626;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 18px;
+}
 
-    .profile-pill {
-        justify-self: end;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 0;
-        padding: 7px 11px 7px 7px;
-        border: 1px solid var(--line);
-        background: #ffffff;
-        border-radius: 999px;
-        color: #334155;
-        font-weight: 700;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
+/* METRICS */
+.metric-row {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
 
-    .avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: #0f172a;
-        color: #ffffff;
-        display: grid;
-        place-items: center;
-        font-size: 0.85rem;
-    }
+.metric {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 18px;
+    padding: 22px;
+}
 
-           border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-    }
+.metric strong {
+    font-size: 30px;
+    color: white;
+}
 
-    .metric strong {
-        display: block;
-        font-size: 1.5rem;
-        color: #0f172a;
-        line-height: 1;
-    }
+.metric span {
+    color: #cbd5e1;
+}
 
-    .metric span {
-        color: #475569;
-        font-size: 0.88rem;
+/* CHAT */
+.user {
+    background: #2563eb;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin: 10px 0;
+    margin-left: auto;
+    max-width: 75%;
+}
+
+.bot {
+    background: #1e293b;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin: 10px 0;
+    max-width: 75%;
+    border: 1px solid #334155;
+}
+
+/* ALERTS */
+div[data-testid="stAlert"] {
+    border-radius: 12px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+    .metric-row {
+        grid-template-columns: 1fr;
     }
 
     .user, .bot {
-        max-width: 74%;
-        padding: 12px 14px;
-        border-radius: 14px;
-        margin: 8px 0;
-        color: #111827;
-        line-height: 1.45;
+        max-width: 100%;
     }
+}
 
-    .user {
-        margin-left: auto;
-        background: #bbf7d0;
-        border-bottom-right-radius: 4px;
-    }
-
-    .bot {
-        margin-right: auto;
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-bottom-left-radius: 4px;
-    }
-
-    div[data-testid="stButton"] > button {
-        width: 100%;
-        border: 0;
-        border-radius: 999px;
-        padding: 0.68rem 1rem;
-        background: #dc2626;
-        color: white;
-        font-weight: 800;
-        box-shadow: 0 8px 18px rgba(220, 38, 38, 0.18);
-    }
-
-    div[data-testid="stButton"] > button:hover {
-        background: #b91c1c;
-        color: white;
-        border: 0;
-    }
-
-    div[data-baseweb="input"] input,
-    div[data-baseweb="select"] > div,
-    textarea {
-        border-radius: 10px !important;
-        background-color: #f8fafc !important;
-        color: #0f172a !important;
-        border-color: #cbd5e1 !important;
-    }
-
-    div[data-baseweb="select"] span,
-    textarea::placeholder,
-    input::placeholder {
-        color: #64748b !important;
-    }
-
-    .stMarkdown,
-    .stCaption,
-    .stCheckbox {
-        color: #f8fafc;
-    }
-
-    div[data-testid="stAlert"] {
-        color: #0f172a;
-    }
-
-    @media (max-width: 760px) {
-        .topbar {
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        .brand,
-        .profile-pill {
-            justify-self: start;
-        }
-
-        .metric-row {
-            grid-template-columns: 1fr;
-        }
-
-        .user, .bot {
-            max-width: 100%;
-        }
-    }
 </style>
-""",
-    unsafe_allow_html=True,
-)
-
-
-
-
+""", unsafe_allow_html=True)
 
 # ======================
 # ONBOARDING
 # ======================
 if not st.session_state.onboarded:
-    
+
+    left, right = st.columns([1.3, 1])
 
     with left:
-        st.markdown(
-            """
-            <div class="section-title">
-                <div>
-                    <h1>Settle in Canada with a clear plan</h1>
-                    <p>Jobs, housing, banking, healthcare, and daily life in one simple dashboard.</p>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
-        a, b, c = st.columns(3)
-        with a:
-            st.markdown('<div class="grid-card"><div class="icon">🧾</div><h3>Checklist</h3><p>Track essentials from SIN to healthcare.</p></div>', unsafe_allow_html=True)
-        with b:
-            st.markdown('<div class="grid-card"><div class="icon">💬</div><h3>Ask AI</h3><p>Get quick answers for common newcomer questions.</p></div>', unsafe_allow_html=True)
-        with c:
-            st.markdown('<div class="grid-card"><div class="icon">💼</div><h3>Resume</h3><p>Improve your resume for Canadian employers.</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        # 🇨🇦 NewToCanada AI
+
+        ### Your AI-powered settlement assistant for Canada
+
+        Jobs • Housing • Banking • Healthcare • Resume • Daily Life
+        """)
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            st.markdown("""
+            <div class="grid-card">
+                <div class="icon">📋</div>
+                <h3>Checklist</h3>
+                <p>Track essential newcomer tasks.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with c2:
+            st.markdown("""
+            <div class="grid-card">
+                <div class="icon">💬</div>
+                <h3>AI Assistant</h3>
+                <p>Ask questions about Canada anytime.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with c3:
+            st.markdown("""
+            <div class="grid-card">
+                <div class="icon">💼</div>
+                <h3>Resume Helper</h3>
+                <p>Improve resumes for Canadian jobs.</p>
+            </div>
+            """, unsafe_allow_html=True)
 
     with right:
-        st.markdown("### Create your profile")
-        name = st.text_input("Your name", placeholder="Asees")
-        province = st.selectbox("Province", PROVINCES)
-        goal = st.selectbox("Goal", ["Study", "Work", "Family"])
 
-        if st.button("Start"):
+        st.markdown("## Create Profile")
+
+        name = st.text_input("Your Name")
+
+        province = st.selectbox(
+            "Province",
+            PROVINCES
+        )
+
+        goal = st.selectbox(
+            "Goal",
+            ["Study", "Work", "Family"]
+        )
+
+        if st.button("Start Your Journey 🚀"):
+
             st.session_state.user_name = name
             st.session_state.user_province = province
             st.session_state.user_goal = goal
             st.session_state.onboarded = True
+
             st.rerun()
 
     st.stop()
 
-
 # ======================
-# NAVIGATION
+# SIDEBAR NAVIGATION
 # ======================
 page = st.sidebar.radio(
     "Navigation",
-    ["🏠 Home", "📊 Dashboard", "💬 AI Assistant", "🧾 Resume Helper"],
+    [
+        "🏠 Home",
+        "📊 Dashboard",
+        "💬 AI Assistant",
+        "🧾 Resume Helper"
+    ]
 )
-
-
-
 
 # ======================
 # HOME
 # ======================
 if page == "🏠 Home":
-    st.markdown(
-        """
-        <div class="section-title">
-            <div>
-                <h1>Home</h1>
-                <p>Choose a tool and keep your Canada settlement progress moving.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+
+    st.markdown(f"""
+    # Welcome, {st.session_state.user_name} 👋
+
+    Your personalized newcomer dashboard for Canada.
+    """)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown('<div class="grid-card"><div class="icon">📋</div><h3>Settlement Checklist</h3><p>Step-by-step tasks for your first weeks in Canada.</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="grid-card">
+            <div class="icon">📋</div>
+            <h3>Settlement Checklist</h3>
+            <p>Track important newcomer steps.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="grid-card"><div class="icon">💰</div><h3>Cost Planner</h3><p>Prepare for rent, food, transit, and phone expenses.</p></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="grid-card">
+            <div class="icon">💰</div>
+            <h3>Cost Planner</h3>
+            <p>Estimate your monthly expenses.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col3:
-        st.markdown('<div class="grid-card"><div class="icon">💬</div><h3>AI Assistant</h3><p>Ask about jobs, housing, banking, and daily life.</p></div>', unsafe_allow_html=True)
-
-    st.markdown("### Recommended next steps")
-    n1, n2 = st.columns(2)
-    with n1:
-        st.info("Open the Dashboard and complete your first three settlement tasks.")
-    with n2:
-        st.info("Use the Resume Helper before applying to jobs in Canada.")
-
+        st.markdown("""
+        <div class="grid-card">
+            <div class="icon">💬</div>
+            <h3>AI Assistant</h3>
+            <p>Get instant newcomer guidance.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ======================
 # DASHBOARD
 # ======================
 elif page == "📊 Dashboard":
-    st.markdown(
 
-"""
-        <div class="section-title">
-            <div>
-                <h1>Settlement Dashboard</h1>
-                <p>Your checklist, score, and essentials in one place.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    st.markdown("# 📊 Settlement Dashboard")
+
+    province = st.selectbox(
+        "Province",
+        PROVINCES,
+        index=PROVINCES.index(st.session_state.user_province)
     )
 
-    province = st.selectbox("Province", PROVINCES, index=PROVINCES.index(st.session_state.user_province))
-    user_type = st.selectbox("Type", ["Student", "Worker", "Family"])
+    user_type = st.selectbox(
+        "Type",
+        ["Student", "Worker", "Family"]
+    )
 
     key = f"{province}-{user_type}"
 
-    base_tasks = [
+    tasks = [
         "Apply for SIN",
         "Open bank account",
         "Get phone plan",
@@ -417,121 +353,159 @@ elif page == "📊 Dashboard":
     ]
 
     if key not in st.session_state.tasks:
-        st.session_state.tasks[key] = {task: False for task in base_tasks}
+        st.session_state.tasks[key] = {
+            task: False for task in tasks
+        }
 
     done = 0
-    for task in base_tasks:
-        if st.session_state.tasks[key][task]:
+
+    st.markdown("## Checklist")
+
+    for task in tasks:
+
+        checked = st.checkbox(
+            task,
+            value=st.session_state.tasks[key][task]
+        )
+
+        st.session_state.tasks[key][task] = checked
+
+        if checked:
             done += 1
 
-    score = int((done / len(base_tasks)) * 100)
+    score = int((done / len(tasks)) * 100)
 
-    st.markdown(
-        f"""
-        <div class="metric-row">
-            <div class="metric"><strong>{score}%</strong><span>Survival score</span></div>
-            <div class="metric"><strong>{done}/{len(base_tasks)}</strong><span>Tasks complete</span></div>
-            <div class="metric"><strong>{province}</strong><span>Selected province</span></div>
+    st.markdown(f"""
+    <div class="metric-row">
+
+        <div class="metric">
+            <strong>{score}%</strong>
+            <span>Canada Survival Score</span>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
-    st.markdown("### Checklist")
+        <div class="metric">
+            <strong>{done}/{len(tasks)}</strong>
+            <span>Tasks Completed</span>
+        </div>
 
-    done = 0
-    for task in base_tasks:
-        val = st.checkbox(task, value=st.session_state.tasks[key][task])
-        st.session_state.tasks[key][task] = val
-        if val:
-            done += 1
+        <div class="metric">
+            <strong>{province}</strong>
+            <span>Selected Province</span>
+        </div>
 
-    score = int((done / len(base_tasks)) * 100)
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("### Canada Survival Score 2.0")
     st.progress(score / 100)
 
     if score < 40:
-        st.error("Struggling phase")
-    elif score < 70:
-        st.warning("Getting stable")
-    else:
-        st.success("Canada-ready!")
+        st.error("You are still in the early settlement stage.")
 
+    elif score < 70:
+        st.warning("You are getting settled.")
+
+    else:
+        st.success("You are Canada-ready!")
 
 # ======================
 # AI ASSISTANT
 # ======================
 elif page == "💬 AI Assistant":
-    st.markdown(
-        """
-        <div class="section-title">
-            <div>
-                <h1>Canada AI Assistant</h1>
-                <p>Ask quick questions about settling in Canada.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+
+    st.markdown("# 💬 Canada AI Assistant")
+
+    lang = st.selectbox(
+        "Language",
+        ["English", "Punjabi", "Hindi", "French"]
     )
 
-    lang = st.selectbox("Language", ["English", "Punjabi", "Hindi", "French"])
+    st.caption(
+        "Try: How do I get SIN? • How do I rent a house? • What is credit score?"
+    )
 
-    suggestions = [
-        "How do I get SIN?",
-        "How do I rent a house?",
-        "What is credit score?",
-        "How do I get a job?",
-    ]
+    left, right = st.columns([5,1])
 
-    st.caption("Try: " + " • ".join(suggestions))
-    q = st.text_input("Ask anything", placeholder="Example: How do I open a bank account?")
+    with left:
+        q = st.text_input(
+            "Ask anything",
+            placeholder="Type your question here..."
+        )
 
-    if q:
+    with right:
+        search = st.button("🔍 Search")
+
+    if search and q:
+
         if page not in st.session_state.chat_history:
             st.session_state.chat_history[page] = []
 
-        st.session_state.chat_history[page].append({"role": "user", "content": q})
+        st.session_state.chat_history[page].append({
+            "role": "user",
+            "content": q
+        })
 
-        answer = "I can help with jobs, housing, banking, immigration, healthcare, and daily life in Canada."
+        q_lower = q.lower()
 
-        st.session_state.chat_history[page].append({"role": "assistant", "content": answer})
+        if "sin" in q_lower:
+            answer = "You can apply for a SIN number at Service Canada using your passport and permit."
 
-    for msg in st.session_state.chat_history.get(page, [])[-6:]:
-        if msg["role"] == "user":
-            st.markdown(f"<div class='user'>🧑 {msg['content']}</div>", unsafe_allow_html=True)
+        elif "bank" in q_lower:
+            answer = "Popular newcomer-friendly banks include RBC, TD, Scotiabank, and CIBC."
+
+        elif "rent" in q_lower:
+            answer = "Most landlords ask for ID, proof of income, references, and sometimes credit history."
+
+        elif "health" in q_lower:
+            answer = "Healthcare registration depends on your province. Ontario uses OHIP."
+
         else:
-            st.markdown(f"<div class='bot'>🤖 {msg['content']}</div>", unsafe_allow_html=True)
+            answer = "I can help with jobs, housing, banking, immigration, healthcare, and newcomer life in Canada."
 
+        st.session_state.chat_history[page].append({
+            "role": "assistant",
+            "content": answer
+        })
+
+    for msg in st.session_state.chat_history.get(page, [])[-8:]:
+
+        if msg["role"] == "user":
+
+            st.markdown(
+                f"<div class='user'>🧑 {msg['content']}</div>",
+                unsafe_allow_html=True
+            )
+
+        else:
+
+            st.markdown(
+                f"<div class='bot'>🤖 {msg['content']}</div>",
+                unsafe_allow_html=True
+            )
 
 # ======================
 # RESUME HELPER
 # ======================
 elif page == "🧾 Resume Helper":
-    st.markdown(
-        """
-        <div class="section-title">
-            <div>
-                <h1>Resume Helper</h1>
-                <p>Make your resume clearer for Canadian job applications.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+
+    st.markdown("# 🧾 Resume Helper")
+
+    resume = st.text_area(
+        "Paste your resume",
+        height=250,
+        placeholder="Paste your resume text here..."
     )
 
-    resume = st.text_area("Paste resume", height=220, placeholder="Paste your resume text here...")
-
     if st.button("Improve Resume"):
+
         if resume:
-            st.success("Improvements:")
-            st.write("✔ Add measurable results")
-            st.write("✔ Use action verbs")
-            st.write("✔ Tailor for job description")
-            st.write("✔ Keep concise, ideally 1-2 pages")
+
+            st.success("AI Resume Suggestions")
+
+            st.write("✔ Add measurable achievements")
+            st.write("✔ Use strong action verbs")
+            st.write("✔ Tailor resume for each job")
+            st.write("✔ Keep resume concise (1-2 pages)")
+            st.write("✔ Add technical and soft skills clearly")
+
         else:
-            st.warning("Please paste resume first")
-
-
-
-
+            st.warning("Please paste your resume first.")
